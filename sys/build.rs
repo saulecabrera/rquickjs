@@ -150,6 +150,7 @@ fn main() {
         "infinity_handling.patch",
         "atomic_new_class_id.patch",
         "dynamic_import_sync.patch",
+        "wasi.patch",
     ];
 
     let mut defines = vec![

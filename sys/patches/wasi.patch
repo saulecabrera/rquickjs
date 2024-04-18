@@ -1,0 +1,23 @@
+diff --git a/quickjs.h b/quickjs.h
+index d4a5cd3..c8ed673 100644
+--- a/quickjs.h
++++ b/quickjs.h
+@@ -652,12 +652,12 @@ static inline void JS_FreeValue(JSContext *ctx, JSValue v)
+ void __JS_FreeValueRT(JSRuntime *rt, JSValue v);
+ static inline void JS_FreeValueRT(JSRuntime *rt, JSValue v)
+ {
+-    if (JS_VALUE_HAS_REF_COUNT(v)) {
+-        JSRefCountHeader *p = (JSRefCountHeader *)JS_VALUE_GET_PTR(v);
+-        if (--p->ref_count <= 0) {
+-            __JS_FreeValueRT(rt, v);
+-        }
+-    }
++    /* if (JS_VALUE_HAS_REF_COUNT(v)) { */
++    /*     JSRefCountHeader *p = (JSRefCountHeader *)JS_VALUE_GET_PTR(v); */
++    /*     if (--p->ref_count <= 0) { */
++    /*         __JS_FreeValueRT(rt, v); */
++    /*     } */
++    /* } */
+ }
+ 
+ static inline JSValue JS_DupValue(JSContext *ctx, JSValueConst v)
