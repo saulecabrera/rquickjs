@@ -226,7 +226,7 @@ fn main() {
     builder
         .extra_warnings(false)
         .flag_if_supported("-Wno-implicit-const-int-float-conversion")
-        //.flag("-Wno-array-bounds")
+        .opt_level(3)
         //.flag("-Wno-format-truncation")
         ;
 
