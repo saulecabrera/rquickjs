@@ -52,6 +52,8 @@ impl Context {
         let guard = runtime.inner.lock();
         let ctx = NonNull::new(unsafe { qjs::JS_NewContextRaw(guard.rt.as_ptr()) })
             .ok_or_else(|| Error::Allocation)?;
+        // rquickjs assumes the base objects exist, so we allways need to add this.
+        unsafe { intrinsic::Base::add_intrinsic(ctx) };
         unsafe { I::add_intrinsic(ctx) };
         unsafe { Self::init_raw(ctx.as_ptr()) }
         let res = Inner {
@@ -194,20 +196,21 @@ mod test {
         });
     }
 
-    #[cfg(feature = "exports")]
     #[test]
     fn module() {
         test_with(|ctx| {
-            let _value: Module = ctx
-                .compile(
-                    "test_mod",
-                    r#"
+            Module::evaluate(
+                ctx,
+                "test_mod",
+                r#"
                     let t = "3";
                     let b = (a) => a + 3;
                     export { b, t}
                 "#,
-                )
-                .unwrap();
+            )
+            .unwrap()
+            .finish::<()>()
+            .unwrap();
         });
     }
 

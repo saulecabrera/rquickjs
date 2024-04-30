@@ -3,10 +3,12 @@ use std::{
     result::Result as StdResult,
 };
 
+use rquickjs_sys::size_t;
+
 #[cfg(feature = "allocator")]
 use crate::allocator::{Allocator, AllocatorHolder};
 #[cfg(feature = "loader")]
-use crate::loader::{LoaderHolder, RawLoader, Resolver};
+use crate::loader::{Loader, LoaderHolder, Resolver};
 use crate::qjs;
 
 #[cfg(feature = "futures")]
@@ -22,7 +24,7 @@ pub(crate) struct Opaque<'js> {
     pub interrupt_handler: Option<InterruptHandler>,
 
     #[cfg(feature = "futures")]
-    pub spawner: Option<Spawner<'js>>,
+    pub spawner: Option<Spawner>,
 
     _marker: PhantomData<&'js ()>,
 }
@@ -50,7 +52,7 @@ impl<'js> Opaque<'js> {
     }
 
     #[cfg(feature = "futures")]
-    pub fn spawner(&mut self) -> &mut Spawner<'js> {
+    pub fn spawner(&mut self) -> &mut Spawner {
         self.spawner
             .as_mut()
             .expect("tried to use async function in non async runtime")
@@ -155,7 +157,6 @@ impl RawRuntime {
 
     pub fn execute_pending_job(&mut self) -> StdResult<bool, *mut qjs::JSContext> {
         let mut ctx_ptr = mem::MaybeUninit::<*mut qjs::JSContext>::uninit();
-        self.update_stack_top();
         let result = unsafe { qjs::JS_ExecutePendingJob(self.rt.as_ptr(), ctx_ptr.as_mut_ptr()) };
         if result == 0 {
             // no jobs executed
@@ -172,7 +173,7 @@ impl RawRuntime {
     pub unsafe fn set_loader<R, L>(&mut self, resolver: R, loader: L)
     where
         R: Resolver + 'static,
-        L: RawLoader + 'static,
+        L: Loader + 'static,
     {
         let loader = LoaderHolder::new(resolver, loader);
         loader.set_to_runtime(self.rt.as_ptr());
@@ -192,14 +193,16 @@ impl RawRuntime {
     /// Note that is a Noop when a custom allocator is being used,
     /// as is the case for the "rust-alloc" or "allocator" features.
     pub unsafe fn set_memory_limit(&mut self, limit: usize) {
-        qjs::JS_SetMemoryLimit(self.rt.as_ptr(), limit as _)
+        let limit: size_t = limit.try_into().unwrap_or(size_t::MAX);
+        qjs::JS_SetMemoryLimit(self.rt.as_ptr(), limit)
     }
 
     /// Set a limit on the max size of stack the runtime will use.
     ///
     /// The default values is 256x1024 bytes.
     pub unsafe fn set_max_stack_size(&mut self, limit: usize) {
-        qjs::JS_SetMaxStackSize(self.rt.as_ptr(), limit as _);
+        let limit: size_t = limit.try_into().unwrap_or(size_t::MAX);
+        qjs::JS_SetMaxStackSize(self.rt.as_ptr(), limit);
     }
 
     /// Set a memory threshold for garbage collection.

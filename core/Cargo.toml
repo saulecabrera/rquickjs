@@ -1,6 +1,6 @@
 [package]
 name = "rquickjs-core"
-version = "0.5.1"
+version = "0.6.0"
 authors = ["Mees Delzenne <mees.delzenne@gmail.com>", "K. <kayo@illumium.org>"]
 edition = "2021"
 license = "MIT"
@@ -23,7 +23,7 @@ version = "1"
 optional = true
 
 [dependencies.async-lock]
-version = "2"
+version = "3"
 optional = true
 
 [dependencies.chrono]
@@ -31,7 +31,7 @@ version = "0.4"
 optional = true
 
 [dependencies.rquickjs-sys]
-version = "0.5.1"
+version = "0.6.0"
 path = "../sys"
 
 [dependencies.dlopen]
@@ -39,14 +39,15 @@ version = "0.1"
 optional = true
 
 [dependencies.relative-path]
-version = "1.3"
+version = "1.9"
 optional = true
+
 
 [features]
 default = []
 
 # Almost all features excluding "parallel" and support for async runtimes
-full = ["chrono", "exports", "loader", "allocator", "dyn-load", "either", "indexmap", "classes", "properties", "array-buffer"]
+full = ["chrono", "loader", "allocator", "dyn-load", "either", "indexmap", "classes", "properties", "array-buffer"]
 
 # Almost all features excluding "parallel"
 full-async = ["full", "futures"]
@@ -57,9 +58,6 @@ bindgen = ["rquickjs-sys/bindgen"]
 
 # Enable support of parallel execution
 parallel = []
-
-# Enable support of reading module exports
-exports = ["rquickjs-sys/exports"]
 
 # Enable user-defined module loader support
 loader = ["relative-path"]
@@ -84,7 +82,7 @@ properties = []
 array-buffer = []
 
 # Enable interop between Rust futures and JS Promises
-futures = ["async-lock"]
+futures = ["dep:async-lock"]
 
 # Allows transferring objects between different contexts of the same runtime.
 multi-ctx = []
@@ -128,3 +126,4 @@ trybuild = "1.0.23"
 
 [package.metadata.docs.rs]
 features = ["full-async", "doc-cfg"]
+
