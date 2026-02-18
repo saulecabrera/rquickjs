@@ -369,6 +369,9 @@ unsafe extern "C" {
     pub fn JS_Mul(ctx: *mut JSContext, op1: JSValue, op2: JSValue) -> JSValue;
 }
 unsafe extern "C" {
+    pub fn JS_Lt(ctx: *mut JSContext, op1: JSValue, op2: JSValue) -> JSValue;
+}
+unsafe extern "C" {
     pub fn JS_IsEqual(ctx: *mut JSContext, op1: JSValue, op2: JSValue) -> ::core::ffi::c_int;
 }
 unsafe extern "C" {
